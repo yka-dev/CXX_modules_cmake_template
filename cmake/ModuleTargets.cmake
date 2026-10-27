@@ -5,17 +5,16 @@ function(_glob var)
     set(${var} ${found} PARENT_SCOPE)
 endfunction()
 
-# Shared: collect public modules, private modules, and plain sources for a target
 function(_add_module_sources name)
     set(dir "${CMAKE_CURRENT_SOURCE_DIR}")
 
-    _glob(pub_modules  "${dir}/public/*.ccm")
+    _glob(pub_modules  "${dir}/pub/*.ccm")
     _glob(priv_modules "${dir}/src/*.ccm")
     _glob(sources      "${dir}/src/*.cc")
 
     if(pub_modules)
         target_sources(${name} PUBLIC
-            FILE_SET CXX_MODULES BASE_DIRS "${dir}/public" FILES ${pub_modules})
+            FILE_SET CXX_MODULES BASE_DIRS "${dir}/pub" FILES ${pub_modules})
     endif()
     if(priv_modules)
         target_sources(${name} PRIVATE
@@ -24,12 +23,26 @@ function(_add_module_sources name)
     if(sources)
         target_sources(${name} PRIVATE ${sources})
     endif()
+
+    if(IS_DIRECTORY "${dir}/pub")
+        target_include_directories(${name} PUBLIC "${dir}/pub")
+    endif()
+    if(IS_DIRECTORY "${dir}/src")
+        target_include_directories(${name} PRIVATE "${dir}/src")
+    endif()
 endfunction()
 
 function(add_module_lib name)
-    cmake_parse_arguments(ARG "" "" "DEPS" ${ARGN})
-    add_library(${name} STATIC)
+    cmake_parse_arguments(ARG "SHARED" "" "DEPS" ${ARGN})
+
+    if(ARG_SHARED)
+        add_library(${name} SHARED)
+    else()
+        add_library(${name} STATIC)
+    endif()
+
     _add_module_sources(${name})
+
     if(ARG_DEPS)
         target_link_libraries(${name} PUBLIC ${ARG_DEPS})
     endif()
@@ -42,4 +55,12 @@ function(add_module_app name)
     if(ARG_DEPS)
         target_link_libraries(${name} PRIVATE ${ARG_DEPS})
     endif()
+
+    add_custom_target(run-${name}
+        COMMAND ${name}
+        DEPENDS ${name}
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        USES_TERMINAL
+        COMMENT "Running ${name}"
+        VERBATIM)
 endfunction()

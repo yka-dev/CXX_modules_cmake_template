@@ -1,0 +1,7 @@
+export module math;
+
+export namespace math {
+
+int add(int x, int y);
+
+} // namespace math

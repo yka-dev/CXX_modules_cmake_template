@@ -7,12 +7,20 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+if(WIN32)
+    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+endif()
+
 include(cmake/ModuleTargets.cmake)
 
 file(GLOB lib_cmakes CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/lib/*/CMakeLists.txt")
+file(GLOB ext_cmakes CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/external/*/CMakeLists.txt")
 file(GLOB cmd_cmakes CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/cmd/*/CMakeLists.txt")
 
-foreach(cm IN LISTS lib_cmakes cmd_cmakes)
+foreach(cm IN LISTS ext_cmakes lib_cmakes cmd_cmakes)
     get_filename_component(dir "${cm}" DIRECTORY)
     add_subdirectory("${dir}")
 endforeach()
+
