@@ -13,6 +13,10 @@ if(WIN32)
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 endif()
 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/out-bin)  
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/out-bin)  
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/out-lib)  
+
 include(cmake/ModuleTargets.cmake)
 
 file(GLOB lib_cmakes CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/lib/*/CMakeLists.txt")
